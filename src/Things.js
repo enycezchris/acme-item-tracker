@@ -1,31 +1,42 @@
-import React from 'react';
-import ThingForm from './ThingForm';
-import { connect } from 'react-redux';
+import React from "react";
+import ThingCreate from "./ThingCreate";
+import { connect } from "react-redux";
+import axios from "axios";
+import StarRank from "./StarRank";
 
-const Things = ({ things })=> {
+const Things = ({ things, deleteThing }) => {
   return (
     <div>
       <h1>Things</h1>
+      <ThingCreate />
       <ul>
-        {
-          things.map( thing => {
-            return (
-              <li key={ thing.id }>
-                { thing.name }
-              </li>
-            );
-          })
-        }
+        {things.map((thing) => {
+          return (
+            <li key={thing.id}>
+              {thing.name}
+              <button onClick={() => deleteThing(thing)}> x </button>
+              <StarRank />
+            </li>
+          );
+        })}
       </ul>
-      <ThingForm />
     </div>
   );
 };
 
-export default connect(
-  (state)=> {
-    return {
-      things: state.things
-    }
-  }
-)(Things);
+function mapStateToProps(state) {
+  return {
+    things: state.things,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    deleteThing: async (thing) => {
+      await axios.delete(`/api/things/${thing.id}`);
+      dispatch({ type: "DELETE_THING", thing });
+    },
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Things);
